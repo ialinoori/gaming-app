@@ -23,4 +23,5 @@ type PlayerAnswer struct{
 ID uint
 PlayerID uint
 QuestionID uint
+Choice PossibleAnswerChoice 
 }
