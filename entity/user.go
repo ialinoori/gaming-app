@@ -1,8 +1,8 @@
 package entity
 
-
 type User struct {
-	ID  uint
+	ID          uint
 	PhoneNumber string
-	Name string
+	Name        string
+	Password string
 }
