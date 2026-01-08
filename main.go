@@ -20,6 +20,10 @@ const (
 )
 
 func main() {
+	// TODO - read config path from command line
+	cfg2 := config.Load("config.yml")
+	fmt.Printf("cfg2: %+v\n", cfg2)
+
 	cfg := config.Config{
 		HTTPServer: config.HTTPServer{Port: 8088},
 		Auth: authservice.Config{
@@ -37,6 +41,10 @@ func main() {
 			DBName:   "gameapp_db",
 		},
 	}
+
+	// TODO - add command for migrations
+	//mgr := migrator.New(cfg.Mysql)
+	//mgr.Up()
 
 	authSvc, userSvc, userValidator := setupServices(cfg)
 
