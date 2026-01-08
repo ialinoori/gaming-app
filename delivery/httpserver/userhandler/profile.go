@@ -1,20 +1,22 @@
 package userhandler
 
 import (
-	"gameapp/dto"
+	"gameapp/param"
+	"gameapp/pkg/constant"
 	"gameapp/pkg/httpmsg"
+	"gameapp/service/authservice"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
-func (h Handler) userProfile(c echo.Context) error {
-	authToken := c.Request().Header.Get("Authorization")
-	claims, err := h.authSvc.ParseToken(authToken)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-	}
+func getClaims(c echo.Context) *authservice.Claims {
+	return c.Get(constant.AuthMiddlewareContextKey).(*authservice.Claims)
+}
 
-	resp, err := h.userSvc.Profile(dto.ProfileRequest{UserID: claims.UserID})
+func (h Handler) userProfile(c echo.Context) error {
+	claims := getClaims(c)
+
+	resp, err := h.userSvc.Profile(param.ProfileRequest{UserID: claims.UserID})
 	if err != nil {
 		msg, code := httpmsg.Error(err)
 		return echo.NewHTTPError(code, msg)
