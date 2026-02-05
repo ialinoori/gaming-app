@@ -27,7 +27,7 @@ func (s Service) Register(req param.RegisterRequest) (param.RegisterResponse, er
 	// return created user
 	return param.RegisterResponse{User: param.UserInfo{
 		ID:          createdUser.ID,
-		PhoneNumber: createdUser.Name,
-		Name:        createdUser.PhoneNumber,
+		PhoneNumber: createdUser.PhoneNumber,
+		Name:        createdUser.Name,
 	}}, nil
 }
