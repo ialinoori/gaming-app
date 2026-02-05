@@ -1,8 +1,16 @@
 package entity
 
+type Category string
 
-type Category struct {
-	ID uint
-	Name string
-	Description string
+const (
+	FootballCategory = "football"
+)
+
+func (c Category) IsValid() bool {
+	switch c {
+	case FootballCategory:
+		return true
+	}
+
+	return false
 }
