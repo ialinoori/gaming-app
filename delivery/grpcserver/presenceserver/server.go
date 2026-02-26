@@ -3,7 +3,7 @@ package presenceserver
 import (
 	"context"
 	"fmt"
-	"gameapp/contract/goproto/presence"
+	"gameapp/contract/golang/presence"
 	"gameapp/param"
 	"gameapp/pkg/protobufmapper"
 	"gameapp/pkg/slice"
@@ -46,11 +46,15 @@ func (s Server) Start() {
 		panic(err)
 	}
 
+	// pbPresenceserver
+
+	presenceSvcServer := Server{}
+
 	// grpc server
 	grpcServer := grpc.NewServer()
 	// pbPresenceserver register into grpc server
 
-	presence.RegisterPresenceServiceServer(grpcServer, &s)
+	presence.RegisterPresenceServiceServer(grpcServer, &presenceSvcServer)
 	// server grpcServer by listener
 
 	log.Println("presence grpc server starting on", address)
