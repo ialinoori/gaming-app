@@ -5,21 +5,15 @@ import (
 	"fmt"
 	presenceClient "gameapp/adapter/presence"
 	"gameapp/param"
-	"google.golang.org/grpc"
+	"log"
 )
 
 func main() {
-	conn, err := grpc.Dial(":8086", grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
-
-	client := presenceClient.New(conn)
+	client := presenceClient.New("localhost:8086")
 
 	resp, err := client.GetPresence(context.Background(), param.GetPresenceRequest{UserIDs: []uint{1, 2, 4}})
 	if err != nil {
-		panic(err)
+		log.Fatalf("GetPresence error: %v", err)
 	}
 
 	for _, item := range resp.Items {
