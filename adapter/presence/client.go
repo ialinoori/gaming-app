@@ -2,7 +2,7 @@ package presence
 
 import (
 	"context"
-	"gameapp/contract/golang/presence"
+	"gameapp/contract/goproto/presence"
 	"gameapp/param"
 	"gameapp/pkg/protobufmapper"
 	"gameapp/pkg/slice"
@@ -10,17 +10,30 @@ import (
 )
 
 type Client struct {
-	client presence.PresenceServiceClient
+	address string
 }
 
-func New(conn *grpc.ClientConn) Client {
+func New(address string) Client {
 	return Client{
-		client: presence.NewPresenceServiceClient(conn),
+		address: address,
 	}
 }
 
 func (c Client) GetPresence(ctx context.Context, request param.GetPresenceRequest) (param.GetPresenceResponse, error) {
-	resp, err := c.client.GetPresence(ctx,
+	// TODO - use richerror on all adapter methods
+
+	// TODO - what's the best practice for reliable communication
+	// retry for connection time out?!
+	// TODO -  is it okay to create new connection for every method call?
+	conn, err := grpc.Dial(c.address, grpc.WithInsecure())
+	if err != nil {
+		return param.GetPresenceResponse{}, err
+	}
+	defer conn.Close()
+
+	client := presence.NewPresenceServiceClient(conn)
+
+	resp, err := client.GetPresence(ctx,
 		&presence.GetPresenceRequest{
 			UserIds: slice.MapFromUintToUint64(request.UserIDs),
 		})

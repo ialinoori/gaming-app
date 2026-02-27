@@ -22,7 +22,6 @@ import (
 	"gameapp/service/userservice"
 	"gameapp/validator/matchingvalidator"
 	"gameapp/validator/uservalidator"
-	"google.golang.org/grpc"
 	"os"
 	"os/signal"
 	"sync"
@@ -42,14 +41,8 @@ func main() {
 	mgr := migrator.New(cfg.Mysql)
 	mgr.Up()
 
-	presenceGrpcConn, err := grpc.Dial(":8086", grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	defer presenceGrpcConn.Close()
-
 	// TODO - add struct and add these returned items as struct field
-	authSvc, userSvc, userValidator, backofficeSvc, authorizationSvc, matchingSvc, matchingV, presenceSvc := setupServices(cfg, presenceGrpcConn)
+	authSvc, userSvc, userValidator, backofficeSvc, authorizationSvc, matchingSvc, matchingV, presenceSvc := setupServices(cfg)
 
 	server := httpserver.New(cfg, authSvc, userSvc, userValidator, backofficeSvc, authorizationSvc,
 		matchingSvc, matchingV, presenceSvc)
@@ -88,7 +81,7 @@ func main() {
 	wg.Wait()
 }
 
-func setupServices(cfg config.Config, presenceGrpcConn *grpc.ClientConn) (
+func setupServices(cfg config.Config) (
 	authservice.Service, userservice.Service, uservalidator.Validator,
 	backofficeuserservice.Service, authorizationservice.Service,
 	matchingservice.Service, matchingvalidator.Validator,
@@ -117,9 +110,10 @@ func setupServices(cfg config.Config, presenceGrpcConn *grpc.ClientConn) (
 
 	matchingRepo := redismatching.New(redisAdapter)
 
-	presenceAdapter := presenceClient.New(presenceGrpcConn)
+	// TODO - add address to config
+	presenceAdapter := presenceClient.New(":8086")
 
-	matchingSvc := matchingservice.New(cfg.MatchingService, matchingRepo, presenceAdapter)
+	matchingSvc := matchingservice.New(cfg.MatchingService, matchingRepo, presenceAdapter, redisAdapter)
 
 	return authSvc, userSvc, uV, backofficeUserSvc, authorizationSvc, matchingSvc, matchingV, presenceSvc
 }
